@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Calculateur de théorème de Pythagore avec visualisation et rédaction détaillée" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Pythagore Pro | Calculateur de théorème de Pythagore</title>
+  <style>
+    :root {
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(0,0,0,.18);
+      --primary: #1976d2;
+      --primary-dark: #1565c0;
+      --transition: all 0.2s ease;
+      --focus-glow: 0 0 0 3px rgba(25, 118, 210, 0.3);
+    }
+    body.theme-dark {
+      --bg: #0f1115;
+      --card: #161a22;
+      --text: #e8ecf1;
+      --muted: #9aa2af;
+      --border: #232939;
+      --input-bg: #0d1117;
+      --placeholder: #5c6370;
+      --accent: rgba(25,118,210,0.15);
+    }
+    body.theme-light {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --text: #10141a;
+      --muted: #586171;
+      --border: #e5e9f1;
+      --input-bg: #fefefe;
+      --placeholder: #8a94a6;
+      --accent: rgba(25,118,210,0.08);
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.5;
+      transition: var(--transition);
+    }
+    h1, h2, h3 { font-weight: 600; margin: 0; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 3;
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .topbar h1 { font-size: 18px; display: flex; align-items: center; gap: 8px; }
+
+    .icon-btn, .btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      font-weight: 500;
+      touch-action: manipulation;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .icon-btn { padding: 8px 10px; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; }
+    .btn { padding: 10px 16px; font-size: 14px; }
+    .btn:hover, .icon-btn:hover { background: var(--accent); border-color: rgba(25,118,210,0.24); }
+    .btn:active, .icon-btn:active { transform: scale(0.98); }
+    .btn.primary, .btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn.primary:hover, .btn.active:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+    .btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin: 16px 0;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .card h2 { font-size: 18px; margin-bottom: 12px; }
+
+    .mode-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+    .row label { color: var(--muted); font-weight: 500; font-size: 14px; }
+    input[type="text"], select {
+      width: 100%; background: var(--input-bg); color: var(--text);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; font-size: 14px; transition: var(--transition);
+    }
+    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: var(--focus-glow); }
+    input::placeholder { color: var(--placeholder); opacity: 1; }
+
+    .input-grid { display: grid; gap: 14px; margin-top: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field .line { display: flex; gap: 8px; align-items: center; }
+
+    .options-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 16px; }
+
+    .angle-bar { display: flex; gap: 8px; }
+    .angle-bar .btn { min-width: 40px; padding: 8px; }
+
+    #triangle {
+      width: 100%; height: clamp(220px, 34vh, 380px);
+      display: block;
+      background: var(--accent);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      margin: 8px 0 4px;
+    }
+    .small { color: var(--muted); font-size: 13px; }
+
+    .result-title { font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 16px; }
+    pre {
+      white-space: pre-wrap; margin: 0;
+      background: rgba(255,255,255,0.03);
+      border: 1px dashed var(--border);
+      border-radius: 10px; padding: 14px;
+      font: 13px/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+    }
+
+    .msg { margin-top: 8px; font-size: 13px; }
+    .msg.error { color: #ff6b6b; }
+    .msg.success { color: #4caf50; }
+
+    .footer { text-align: center; margin: 20px 0; padding: 12px; color: var(--muted); font-size: 13px; }
+
+    dialog {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: var(--radius);
+      padding: 16px;
+      max-width: 720px; width: calc(100% - 32px);
+      box-shadow: var(--shadow);
+    }
+    dialog::backdrop { background: rgba(0,0,0,0.4); }
+    .dialog-actions { margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    @keyframes dialog-show {
+      from { opacity: 0; transform: scale(0.97) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    dialog[open] { animation: dialog-show 0.3s ease-out forwards; }
+
+    @keyframes backdrop-fade-in {
+      from { background: rgba(0, 0, 0, 0); }
+      to { background: rgba(0, 0, 0, 0.4); }
+    }
+    dialog[open]::backdrop { animation: backdrop-fade-in 0.3s ease-out forwards; }
+
+    @media (max-width: 600px) {
+      .topbar { padding: 10px 12px; }
+      .container { padding: 12px; }
+      .card { padding: 14px; }
+      .input-grid { grid-template-columns: 1fr; }
+    }
+    
+    .dropdown { position: relative; }
+    .dropdown-summary { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; cursor: pointer; list-style: none; padding: 4px 8px; border-radius: 8px; transition: var(--transition); }
+    .dropdown-summary:hover { background: var(--accent); }
+    .dropdown-summary::-webkit-details-marker { display: none; }
+    .dropdown-summary .arrow { transition: transform 0.2s ease; }
+    details[open] > .dropdown-summary .arrow { transform: rotate(180deg); }
+    .dropdown-menu { position: absolute; top: calc(100% + 8px); left: 0; z-index: 10; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); width: 280px; padding: 8px; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; }
+    details[open] > .dropdown-menu { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .dropdown-menu a { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; text-decoration: none; color: var(--text); font-size: 14px; font-weight: 500; }
+    .dropdown-menu a:hover { background: var(--accent); }
+    .dropdown-menu a.active { font-weight: 600; color: var(--primary); background: var(--accent); }
+    .dropdown-menu .emoji { font-size: 18px; }
+    .dropdown-menu hr { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="theme-dark">
+  <header class="topbar">
+    <details class="dropdown">
+      <summary class="dropdown-summary">
+        <span class="emoji">🧮</span>
+        <span>Pythagore Pro</span>
+        <svg class="arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M7 10l5 5 5-5H7z"></path></svg>
+      </summary>
+      <nav class="dropdown-menu">
+        <a href="index.html"><span class="emoji">🔢</span><span>Menu Principal</span></a>
+        <hr>
+        <a href="Pythagore_pro.html" class="active"><span class="emoji">🧮</span><span>Pythagore Pro</span></a>
+        <a href="Thales_Pro.html"><span class="emoji">📐</span><span>Thalès Pro</span></a>
+        <a href="Developpement_Pro.html"><span class="emoji">⚙️</span><span>Développement Pro</span></a>
+        <a href="Equation_Premier_Degre_Pro.html"><span class="emoji">⚖️</span><span>Équation Pro (1er degré)</span></a>
+        <a href="Statistique_Pro.html"><span class="emoji">📊</span><span>Statistique Pro</span></a>
+      </nav>
+    </details>
+    <div class="actions">
+      <button id="btnTheme" class="icon-btn" title="Changer de thème" aria-label="Changer de thème">🌓</button>
+      <button id="btnInfo" class="icon-btn" title="Aide" aria-label="Aide">ℹ️</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h2>Visualisation du triangle</h2>
+      <canvas id="triangle" aria-label="Visualisation du triangle rectangle"></canvas>
+      <span class="small">Le triangle reste invisible tant que les données sont insuffisantes. Le côté recherché est révélé après “Calculer”.</span>
+    </section>
+
+    <section class="card" aria-labelledby="section-calc">
+      <h2 id="section-calc">Paramètres et données</h2>
+
+      <div class="mode-bar" role="tablist" aria-label="Mode de calcul">
+        <button id="modeHyp" class="btn active" role="tab" aria-selected="true">Hypoténuse</button>
+        <button id="modeLeg" class="btn" role="tab" aria-selected="false">Autre côté</button>
+      </div>
+
+      <div class="row" role="group" aria-label="Sommets et angle droit">
+        <label for="vertices">Sommets (ex: ABC, IGR...)</label>
+        <input id="vertices" type="text" inputmode="text" autocomplete="off" autocapitalize="characters"
+               placeholder="ABC" value="ABC" maxlength="6" aria-label="Noms des sommets (3 lettres)" />
+        <span>Angle droit en :</span>
+        <div class="angle-bar">
+          <button class="btn angle active" id="angle1" data-letter="A" aria-pressed="true">A</button>
+          <button class="btn angle" id="angle2" data-letter="B" aria-pressed="false">B</button>
+          <button class="btn angle" id="angle3" data-letter="C" aria-pressed="false">C</button>
+        </div>
+      </div>
+
+      <div class="input-grid" role="group" aria-label="Mesures">
+        <div class="field">
+          <label id="labelA" for="inputA">Longueur AB</label>
+          <div class="line">
+            <input id="inputA" type="text" inputmode="decimal" placeholder="ex: 3,5" aria-labelledby="labelA unitA" />
+            <select id="unitA" aria-label="Unité du premier côté"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label id="labelB" for="inputB">Longueur AC</label>
+          <div class="line">
+            <input id="inputB" type="text" inputmode="decimal" placeholder="ex: 7" aria-labelledby="labelB unitB" />
+            <select id="unitB" aria-label="Unité du deuxième côté"></select>
+          </div>
+        </div>
+        <div class="field" id="groupC">
+          <label id="labelC" for="inputC">Hypoténuse BC</label>
+          <div class="line">
+            <input id="inputC" type="text" inputmode="decimal" placeholder="ex: 10" aria-labelledby="labelC unitC" />
+            <select id="unitC" aria-label="Unité de l'hypoténuse"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="options-grid">
+        <div class="field">
+          <label for="unitRes">Unité de résultat</label>
+          <select id="unitRes" aria-label="Unité pour les résultats"></select>
+          <span class="small">Toutes les conversions se font dans cette unité.</span>
+        </div>
+        <div class="field">
+          <label for="precision">Précision (décimales)</label>
+          <select id="precision" aria-label="Nombre de décimales">
+            <option>0</option><option>1</option><option selected>2</option>
+            <option>3</option><option>4</option><option>5</option><option>6</option>
+          </select>
+          <span class="small">Ex: 25,94 cm</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="actions">
+        <button id="btnCalc" class="btn primary">Calculer</button>
+        <button id="btnClear" class="btn">Effacer</button>
+        <button id="btnExport" class="btn" title="Exporter le dessin en PNG">Exporter PNG</button>
+      </div>
+      <div id="msg" class="msg" role="status" aria-live="polite"></div>
+    </section>
+
+    <section id="resultCard" class="card" hidden aria-hidden="true">
+      <div class="result-title">✅ <span id="resultTitle"></span></div>
+      <hr style="border:none;border-top:1px solid var(--border); margin: 8px 0;">
+      <pre id="resultSteps"></pre>
+      <div class="actions" style="margin-top:10px; gap: 8px;">
+        <button id="btnCopy" class="btn">Copier la rédaction</button>
+        <button id="btnNew" class="btn">Nouveau</button>
+        <button id="btnExportPDF" class="btn">Exporter en PDF</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>« La géométrie est la poésie de la raison. »</p>
+      <p style="margin-top: 8px; font-size: 12px;">
+        <a href="#" id="btnFeedback">Envoyer un retour</a>
+      </p>
+    </footer>
+  </main>
+
+  <dialog id="dlgHelp" aria-labelledby="helpTitle">
+    <h3 id="helpTitle">Aide • Pythagore Pro</h3>
+    <ul>
+      <li>Choisissez le mode:
+        <ul>
+          <li>Hypoténuse: calcule l’hypoténuse à partir des deux côtés adjacents à l’angle droit.</li>
+          <li>Autre côté: calcule un côté à partir de l’hypoténuse et d’un côté.</li>
+        </ul>
+      </li>
+      <li>Le côté recherché n’apparaît qu’après avoir cliqué sur “Calculer” (ou Enter).</li>
+      <li>Changer une donnée masque à nouveau le résultat jusqu’au prochain calcul.</li>
+    </ul>
+    <div class="dialog-actions">
+      <button id="btnHelpClose" class="btn">Fermer</button>
+    </div>
+  </dialog>
+
+  <noscript>
+    <div style="padding:12px;color:#b71c1c;background:#ffebee;border:1px solid #ffcdd2;margin:16px;border-radius:10px;">
+      JavaScript est requis pour utiliser cet outil.
+    </div>
+  </noscript>
+
+  <script>
+    (function () {
+      'use strict';
+      document.addEventListener('DOMContentLoaded', initApp);
+
+      function initApp() {
+        // ---------- Données unités ----------
+        var UNITS = [
+          { group: "SI (m)", items: [
+            { v: "μm", l: "Micromètre (μm)", f: 1e-6 },
+            { v: "mm", l: "Millimètre (mm)", f: 1e-3 },
+            { v: "cm", l: "Centimètre (cm)", f: 1e-2 },
+            { v: "dm", l: "Décimètre (dm)",   f: 0.1 },
+            { v: "m",  l: "Mètre (m)",        f: 1 },
+            { v: "dam",l: "Décamètre (dam)",  f: 10 },
+            { v: "hm", l: "Hectomètre (hm)",  f: 100 },
+            { v: "km", l: "Kilomètre (km)",   f: 1000 }
+          ]},
+          { group: "Impériales", items: [
+            { v: "in", l: "Pouce (in)", f: 0.0254 },
+            { v: "ft", l: "Pied (ft)",  f: 0.3048 },
+            { v: "yd", l: "Yard (yd)",  f: 0.9144 },
+            { v: "mi", l: "Mile (mi)",  f: 1609.34 },
+            { v: "nmi", l: "Mille marin (nmi)", f: 1852 }
+          ]}
+        ];
+        var FACT = {}; // unité -> facteur m
+        for (var gi=0; gi<UNITS.length; gi++) {
+          var group = UNITS[gi];
+          for (var ui=0; ui<group.items.length; ui++) {
+            var u = group.items[ui];
+            FACT[u.v] = u.f;
+          }
+        }
+        var LS_THEME = 'py_theme';
+        var LS_STATE = 'py_state_v3';
+
+        // ---------- État ----------
+        var state = {
+          mode: 'hypotenuse',
+          vertices: 'ABC',
+          rightAngle: 'A',
+          units: { A:'cm', B:'cm', C:'cm', res:'cm' },
+          precision: 2,
+          reveal: false,
+          last: null // { a,b,c,uRes,d,labels:{l1,l2,hyp,vs} }
+        };
+
+        // ---------- DOM ----------
+        function byId(id){ return document.getElementById(id); }
+        var el = {
+          canvas: byId('triangle'),
+          ctx: null,
+
+          modeHyp: byId('modeHyp'),
+          modeLeg: byId('modeLeg'),
+
+          vertices: byId('vertices'),
+          angleBtns: [byId('angle1'), byId('angle2'), byId('angle3')],
+
+          labelA: byId('labelA'),
+          labelB: byId('labelB'),
+          labelC: byId('labelC'),
+          groupC: byId('groupC'),
+
+          inputA: byId('inputA'),
+          inputB: byId('inputB'),
+          inputC: byId('inputC'),
+          unitA: byId('unitA'),
+          unitB: byId('unitB'),
+          unitC: byId('unitC'),
+          unitRes: byId('unitRes'),
+          precision: byId('precision'),
+
+          btnCalc: byId('btnCalc'),
+          btnClear: byId('btnClear'),
+          btnNew: byId('btnNew'),
+          btnCopy: byId('btnCopy'),
+          btnExport: byId('btnExport'),
+          btnExportPDF: byId('btnExportPDF'),
+          resultCard: byId('resultCard'),
+          resultTitle: byId('resultTitle'),
+          resultSteps: byId('resultSteps'),
+          msg: byId('msg'),
+
+          btnTheme: byId('btnTheme'),
+          btnInfo: byId('btnInfo'),
+          btnFeedback: byId('btnFeedback'),
+          dlgHelp: byId('dlgHelp'),
+          btnHelpClose: byId('btnHelpClose')
+        };
+        if (el.canvas) el.ctx = el.canvas.getContext('2d');
+
+        // ---------- Utils ----------
+        function clamp(n, min, max){ return Math.min(max, Math.max(min, n)); }
+        function toMeters(val, unit){ return (val || 0) * (FACT[unit] || 1); }
+        function fromMeters(m, unit){ return (m || 0) / (FACT[unit] || 1); }
+
+        // Format numérique FR sans zéros inutiles, jusqu’à d décimales
+        function formatSmart(n, d) {
+          if (!isFinite(n)) return '—';
+          try {
+            return n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: d });
+          } catch {
+            var p = Math.pow(10, d);
+            var s = (Math.round(n * p) / p).toString().replace('.', ',');
+            // supprime ,0 si entier
+            return s.replace(/,0+$/, '');
+          }
+        }
+        function parseInputNumber(str) {
+          if (typeof str !== 'string') return NaN;
+          var s = str.trim().replace(/\s/g, '').replace(',', '.');
+          if (s === '') return NaN;
+          if (!/^[+-]?\d*\.?\d+$/.test(s)) return NaN;
+          var v = parseFloat(s);
+          return isFinite(v) ? v : NaN;
+        }
+        function showMsg(text, type) {
+          if (!el.msg) return;
+          el.msg.textContent = text || '';
+          el.msg.className = 'msg' + (type ? (' ' + type) : '');
+        }
+        function debounce(fn, wait) {
+          if (wait == null) wait = 200;
+          var t = 0;
+          return function() {
+            clearTimeout(t);
+            var args = arguments;
+            t = setTimeout(function(){ fn.apply(null, args); }, wait);
+          };
+        }
+        function saveState() {
+          var data = {
+            mode: state.mode,
+            vertices: state.vertices,
+            rightAngle: state.rightAngle,
+            units: state.units,
+            precision: state.precision
+          };
+          try { localStorage.setItem(LS_STATE, JSON.stringify(data)); } catch {}
+        }
+        function loadState() {
+          try {
+            var data = JSON.parse(localStorage.getItem(LS_STATE) || '{}');
+            if (data.mode) state.mode = data.mode;
+            if (data.vertices) state.vertices = sanitizeVertices(data.vertices);
+            if (data.rightAngle && state.vertices.indexOf(data.rightAngle) !== -1) state.rightAngle = data.rightAngle;
+            if (data.units) for (var k in data.units) state.units[k] = data.units[k];
+            if (typeof data.precision === 'number') state.precision = clamp(data.precision, 0, 6);
+          } catch {}
+        }
+
+        // ---------- Thème ----------
+        function setTheme(theme) {
+          document.body.classList.remove('theme-dark', 'theme-light');
+          document.body.classList.add(theme);
+          try { localStorage.setItem(LS_THEME, theme); } catch {}
+          if (el.btnTheme) {
+            el.btnTheme.textContent = theme === 'theme-dark' ? '☀️' : '🌙';
+            el.btnTheme.setAttribute('aria-label', theme === 'theme-dark' ? 'Passer au thème clair' : 'Passer au thème sombre');
+          }
+        }
+        function loadThemePreference() {
+          try {
+            var saved = localStorage.getItem(LS_THEME);
+            if (saved === 'theme-light' || saved === 'theme-dark') {
+              setTheme(saved);
+            } else {
+              var prefersDark = false;
+              try { prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; } catch {}
+              setTheme(prefersDark ? 'theme-dark' : 'theme-light');
+            }
+          } catch { setTheme('theme-dark'); }
+        }
+        function toggleTheme() {
+          setTheme(document.body.classList.contains('theme-dark') ? 'theme-light' : 'theme-dark');
+        }
+
+        // ---------- Sommets / noms ----------
+        function sanitizeVertices(input) {
+          var letters = (input || '').toUpperCase().replace(/[^A-Z]/g, '').split('');
+          var unique = [];
+          for (var i=0; i<letters.length; i++) if (unique.indexOf(letters[i]) === -1) unique.push(letters[i]);
+          while (unique.length < 3) {
+            var base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            for (var j=0; j<base.length && unique.length<3; j++) if (unique.indexOf(base[j]) === -1) unique.push(base[j]);
+          }
+          return unique.slice(0,3).join('');
+        }
+        function verts(){ return state.vertices.split('').slice(0,3); }
+        function side(u, v) {
+          var vs = verts();
+          var iu = vs.indexOf(u), iv = vs.indexOf(v);
+          if (iu === -1 || iv === -1) return u + v;
+          return iu < iv ? (u + v) : (v + u);
+        }
+        function names() {
+          var vs = verts();
+          if (vs.indexOf(state.rightAngle) === -1) state.rightAngle = vs[0];
+          var others = vs.filter(function(x){ return x !== state.rightAngle; });
+          var l1 = side(state.rightAngle, others[0]);
+          var l2 = side(state.rightAngle, others[1]);
+          var hyp = side(others[0], others[1]);
+          return [l1, l2, hyp, vs];
+        }
+
+        // ---------- UI ----------
+        function fillUnits(selectEl) {
+          if (!selectEl) return;
+          selectEl.innerHTML = '';
+          for (var gi=0; gi<UNITS.length; gi++) {
+            var og = document.createElement('optgroup');
+            og.label = UNITS[gi].group;
+            for (var ui=0; ui<UNITS[gi].items.length; ui++) {
+              var it = UNITS[gi].items[ui];
+              var opt = document.createElement('option');
+              opt.value = it.v; opt.textContent = it.l;
+              og.appendChild(opt);
+            }
+            selectEl.appendChild(og);
+          }
+        }
+        function refreshUI() {
+          var ns = names(), vs = ns[3];
+
+          // Angle buttons
+          for (var i=0; i<el.angleBtns.length; i++) {
+            var btn = el.angleBtns[i];
+            if (!btn) continue;
+            var ch = vs[i];
+            btn.dataset.letter = ch;
+            btn.textContent = ch;
+            var active = (ch === state.rightAngle);
+            btn.classList.toggle('active', active);
+            btn.setAttribute('aria-pressed', String(active));
+          }
+
+          if (el.labelA) el.labelA.textContent = 'Longueur ' + ns[0];
+          if (el.labelB) el.labelB.textContent = 'Longueur ' + ns[1];
+          if (el.labelC) el.labelC.textContent = 'Hypoténuse ' + ns[2];
+
+          if (el.groupC) el.groupC.style.display = state.mode === 'leg' ? '' : 'none';
+
+          if (el.modeHyp && el.modeLeg) {
+            el.modeHyp.classList.toggle('active', state.mode === 'hypotenuse');
+            el.modeLeg.classList.toggle('active', state.mode === 'leg');
+            el.modeHyp.setAttribute('aria-selected', String(state.mode === 'hypotenuse'));
+            el.modeLeg.setAttribute('aria-selected', String(state.mode === 'leg'));
+          }
+
+          if (el.unitA) el.unitA.value = state.units.A;
+          if (el.unitB) el.unitB.value = state.units.B;
+          if (el.unitC) el.unitC.value = state.units.C;
+          if (el.unitRes) el.unitRes.value = state.units.res;
+          if (el.precision) el.precision.value = String(state.precision);
+        }
+
+        // ---------- Lecture inputs ----------
+        function getInputs() {
+          var aVal = parseInputNumber(el.inputA ? el.inputA.value : '');
+          var bVal = parseInputNumber(el.inputB ? el.inputB.value : '');
+          var cVal = parseInputNumber(el.inputC ? el.inputC.value : '');
+
+          var a = isNaN(aVal) ? NaN : toMeters(aVal, el.unitA ? el.unitA.value : 'cm');
+          var b = isNaN(bVal) ? NaN : toMeters(bVal, el.unitB ? el.unitB.value : 'cm');
+          var c = isNaN(cVal) ? NaN : toMeters(cVal, el.unitC ? el.unitC.value : 'cm');
+          return { a:a, b:b, c:c, aRaw:aVal, bRaw:bVal, cRaw:cVal };
+        }
+
+        // ---------- Calcul ----------
+        function canHyp(a,b){ return isFinite(a) && a>0 && isFinite(b) && b>0; }
+        function canLeg(a,b,c){
+          var hasC = isFinite(c) && c>0;
+          var hasA = isFinite(a) && a>0;
+          var hasB = isFinite(b) && b>0;
+          return hasC && ((hasA && !hasB) || (!hasA && hasB));
+        }
+
+        function pythagoreCompute() {
+          var inp = getInputs();
+          var a = inp.a, b = inp.b, c = inp.c;
+
+          if (state.mode === 'hypotenuse') {
+            if (!canHyp(a,b)) throw new Error('Veuillez renseigner deux côtés adjacents à l’angle droit (positifs).');
+            var cM = Math.hypot(a,b);
+            return { known:{a:a,b:b,c:NaN}, computed:{a:a,b:b,c:cM}, compute:'hyp' };
+          } else {
+            if (!canLeg(a,b,c)) throw new Error('En “Autre côté”, entrez l’hypoténuse et exactement un seul côté adjacent.');
+            if (isFinite(a) && a>0) {
+              if (c <= a) throw new Error('Impossible: l’hypoténuse doit être plus grande que le côté connu.');
+              var bM = Math.sqrt(c*c - a*a);
+              return { known:{a:a,b:NaN,c:c}, computed:{a:a,b:bM,c:c}, compute:'b' };
+            } else {
+              if (c <= b) throw new Error('Impossible: l’hypoténuse doit être plus grande que le côté connu.');
+              var aM = Math.sqrt(c*c - b*b);
+              return { known:{a:NaN,b:b,c:c}, computed:{a:aM,b:b,c:c}, compute:'a' };
+            }
+          }
+        }
+
+// ---------- Rédaction EXACTEMENT au format demandé ----------
+function renderSteps(result) {
+  var ns = names();
+  var l1 = ns[0], l2 = ns[1], hyp = ns[2], vs = ns[3];
+  var u = el.unitRes ? el.unitRes.value : 'cm';
+  var d = parseInt(el.precision ? el.precision.value : '2', 10);
+
+  var a = result.computed.a, b = result.computed.b, c = result.computed.c;
+  var aN = fromMeters(a, u), bN = fromMeters(b, u), cN = isFinite(c) ? fromMeters(c, u) : NaN;
+
+  // Format avec exactement d décimales (0,69, 0,48, etc.)
+  function fmt(n) {
+    if (!isFinite(n)) return '—';
+    try {
+      return n.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+    } catch {
+      var p = Math.pow(10, d);
+      var s = (Math.round(n * p) / p).toFixed(d);
+      return s.replace('.', ',');
+    }
+  }
+
+  // Conversion: seulement si au moins une unité diffère de l’unité de résultat
+  var inp = getInputs();
+  var conv = [];
+  function convLine(label, rawVal, unitIn) {
+    if (!isFinite(rawVal) || !unitIn) return;
+    if (unitIn === u) return; // pas de ligne si déjà dans l’unité de résultat
+    var vInRes = fromMeters(toMeters(rawVal, unitIn), u);
+    conv.push(label + ' = ' + formatSmart(rawVal, d) + ' ' + unitIn + ' = ' + fmt(vInRes) + ' ' + u);
+  }
+  if (result.compute === 'hyp') {
+    convLine(l1, inp.aRaw, el.unitA ? el.unitA.value : u);
+    convLine(l2, inp.bRaw, el.unitB ? el.unitB.value : u);
+  } else if (result.compute === 'a') {
+    convLine(l2, inp.bRaw, el.unitB ? el.unitB.value : u);
+    convLine(hyp, inp.cRaw, el.unitC ? el.unitC.value : u);
+  } else {
+    convLine(l1, inp.aRaw, el.unitA ? el.unitA.value : u);
+    convLine(hyp, inp.cRaw, el.unitC ? el.unitC.value : u);
+  }
+
+  var lines = [];
+  lines.push('On considère un triangle ' + vs.join('') + ' rectangle en ' + state.rightAngle + '.');
+  lines.push('');
+
+  if (conv.length) {
+    lines.push('Conversion:');
+    for (var i = 0; i < conv.length; i++) lines.push(conv[i]);
+    lines.push('');
+  }
+
+  lines.push('D’après le théorème de Pythagore :');
+  lines.push('Dans un triangle rectangle, le carré de l’hypoténuse est égal à la somme des carrés des deux autres côtés.');
+  lines.push('');
+  lines.push('Telle que:');
+  lines.push(hyp + '² = ' + l1 + '² + ' + l2 + '²');
+  lines.push('');
+  lines.push('Calcule:');
+
+  if (result.compute === 'hyp') {
+    var a2 = aN * aN, b2 = bN * bN, sum = a2 + b2;
+    var cCalc = isFinite(cN) ? cN : Math.sqrt(sum);
+
+    lines.push(hyp + '² = ' + fmt(aN) + '² + ' + fmt(bN) + '²');
+    lines.push(hyp + '² = ' + fmt(a2) + ' + ' + fmt(b2));
+    lines.push(hyp + '² = ' + fmt(sum));
+    lines.push(hyp + ' = √' + fmt(sum));
+    lines.push(hyp + ' = ' + fmt(cCalc));
+    lines.push('');
+    lines.push('Conclusion :');
+    lines.push('La longueur de l’hypoténuse ' + hyp + ' est donc ' + fmt(cCalc) + ' ' + u);
+  } else if (result.compute === 'a') {
+    var c2a = cN * cN, b2a = bN * bN, diffA = c2a - b2a;
+
+    lines.push(l1 + '² = ' + hyp + '² - ' + l2 + '²');
+    lines.push(l1 + '² = ' + fmt(cN) + '² - ' + fmt(bN) + '²');
+    lines.push(l1 + '² = ' + fmt(c2a) + ' - ' + fmt(b2a));
+    lines.push(l1 + '² = ' + fmt(diffA));
+    lines.push(l1 + ' = √' + fmt(diffA));
+    lines.push(l1 + ' = ' + fmt(aN));
+    lines.push('');
+    lines.push('Conclusion :');
+    lines.push('La longueur du côté ' + l1 + ' est donc ' + fmt(aN) + ' ' + u);
+  } else {
+    var c2b = cN * cN, a2b = aN * aN, diffB = c2b - a2b;
+
+    lines.push(l2 + '² = ' + hyp + '² - ' + l1 + '²');
+    lines.push(l2 + '² = ' + fmt(cN) + '² - ' + fmt(aN) + '²');
+    lines.push(l2 + '² = ' + fmt(c2b) + ' - ' + fmt(a2b));
+    lines.push(l2 + '² = ' + fmt(diffB));
+    lines.push(l2 + ' = √' + fmt(diffB));
+    lines.push(l2 + ' = ' + fmt(bN));
+    lines.push('');
+    lines.push('Conclusion :');
+    lines.push('La longueur du côté ' + l2 + ' est donc ' + fmt(bN) + ' ' + u);
+  }
+
+  if (el.resultSteps) el.resultSteps.textContent = lines.join('\n');
+
+  // Titre (libre): on garde comme repère visuel
+  var title = (result.compute === 'hyp')
+    ? ('Hypoténuse ' + hyp + ' = ' + fmt(isFinite(cN) ? cN : Math.sqrt(aN * aN + bN * bN)) + ' ' + u)
+    : (result.compute === 'a'
+        ? ('Côté ' + l1 + ' = ' + fmt(aN) + ' ' + u)
+        : ('Côté ' + l2 + ' = ' + fmt(bN) + ' ' + u));
+  if (el.resultTitle) el.resultTitle.textContent = title;
+
+  state.last = { a: a, b: b, c: c, uRes: u, d: d, labels: { l1: l1, l2: l2, hyp: hyp, vs: vs } };
+}
+        // ---------- Canvas / dessin ----------
+        var rafId = 0;
+        var lastCssW=-1, lastCssH=-1, lastDpr=-1;
+
+        function scheduleDraw() {
+          if (rafId) return;
+          rafId = requestAnimationFrame(function(){ rafId = 0; updateTriangle(); });
+        }
+        function ensureCanvasSized() {
+          if (!el.canvas || !el.ctx) return { w: 0, h: 0 };
+          var rect = el.canvas.getBoundingClientRect();
+          var dpr = window.devicePixelRatio || 1;
+
+          if (rect.width !== lastCssW || rect.height !== lastCssH || dpr !== lastDpr) {
+            el.canvas.width = Math.max(1, Math.round(rect.width * dpr));
+            el.canvas.height = Math.max(1, Math.round(rect.height * dpr));
+            el.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            lastCssW = rect.width; lastCssH = rect.height; lastDpr = dpr;
+          }
+          el.ctx.clearRect(0, 0, lastCssW, lastCssH);
+          return { w: lastCssW, h: lastCssH };
+        }
+        function drawPlaceholder() {
+          ensureCanvasSized(); // canvas vide
+        }
+        function getTextColor() {
+          try {
+            var cs = getComputedStyle(document.body);
+            return cs.getPropertyValue('--text') || '#e8ecf1';
+          } catch { return '#e8ecf1'; }
+        }
+
+        // Anti-chevauchement des labels
+        var placed = [];
+        function resetPlace(){ placed = []; }
+        function overlap(a,b){ return a && b && a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y; }
+        function any(r){ for (var i=0;i<placed.length;i++) if (overlap(r,placed[i])) return true; return false; }
+        function bubble(ctx, text, x, y, color) {
+          var dark = document.body.classList.contains('theme-dark');
+          var bg = dark ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.85)';
+          var padX=6, padY=3;
+          var w=Math.ceil(ctx.measureText(text).width), h=14;
+          var rx=x-padX, ry=y-padY, rw=w+2*padX, rh=h+2*padY;
+
+          ctx.save();
+          ctx.fillStyle = bg;
+          ctx.beginPath();
+          var r=6;
+          ctx.moveTo(rx+r, ry);
+          ctx.arcTo(rx+rw, ry, rx+rw, ry+rh, r);
+          ctx.arcTo(rx+rw, ry+rh, rx, ry+rh, r);
+          ctx.arcTo(rx, ry+rh, rx, ry, r);
+          ctx.arcTo(rx, ry, rx+rw, ry, r);
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+
+          ctx.fillStyle = color;
+          ctx.fillText(text, x, y);
+          return { x: rx, y: ry, w: rw, h: rh };
+        }
+        function sideLabel(ctx, mid, text, color) {
+          if (!el.canvas) return;
+          var rect = el.canvas.getBoundingClientRect();
+          var W = rect.width, H = rect.height;
+          var candidates = [
+            {dx: 8, dy: 8}, {dx: 8, dy: -18}, {dx: -8, dy: 8}, {dx: -8, dy: -18},
+            {dx: 0, dy: -26}, {dx: 0, dy: 26}, {dx: 22, dy: 0}, {dx: -22, dy: 0}
+          ];
+          var textW = Math.ceil(ctx.measureText(text).width), textH = 14;
+          var padX = 6, padY = 3;
+
+          var chosen = null, labelRect = null, attempt = 0;
+
+          while (attempt < 48 && !chosen) {
+            var base = candidates[attempt % candidates.length];
+            var mul = 1 + Math.floor(attempt / candidates.length);
+            var x = mid.x + base.dx * mul;
+            var y = mid.y + base.dy * mul;
+
+            x = Math.max(4, Math.min(W - (textW + 2*padX) - 4, x));
+            y = Math.max(4, Math.min(H - (textH + 2*padY) - 4, y));
+
+            var r = { x: x - padX, y: y - padY, w: textW + 2*padX, h: textH + 2*padY };
+            if (!any(r)) { chosen = { x:x, y:y }; labelRect = r; break; }
+            attempt++;
+          }
+
+          if (chosen) {
+            if (Math.hypot(chosen.x - mid.x, chosen.y - mid.y) > 20) {
+              ctx.save();
+              ctx.strokeStyle = color;
+              ctx.globalAlpha = 0.85;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(mid.x, mid.y);
+              var cx = chosen.x + (labelRect.w/2) - 6;
+              var cy = chosen.y + (textH/2);
+              ctx.lineTo(cx, cy);
+              ctx.stroke();
+              ctx.restore();
+            }
+            placed.push(bubble(ctx, text, chosen.x, chosen.y, color));
+          }
+        }
+
+        function drawTriangle(a_len, b_len) {
+          var size = ensureCanvasSized();
+          var ctx = el.ctx;
+          if (!ctx) return;
+
+          if (!(a_len>0 && b_len>0)) { drawPlaceholder(); return; }
+
+          var pad = 20;
+          var aw = size.w - 2*pad, ah = size.h - 2*pad;
+          var s = Math.min(aw/a_len, ah/b_len);
+
+          var A = a_len * s, B = b_len * s;
+          var P = { x: pad, y: size.h - pad };      // angle droit
+          var Q = { x: pad + A, y: size.h - pad };  // axe x
+          var R = { x: pad, y: size.h - pad - B };  // axe y
+
+          // Fond
+          ctx.fillStyle = "rgba(25,118,210,0.18)";
+          ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(Q.x,Q.y); ctx.lineTo(R.x,R.y); ctx.closePath(); ctx.fill();
+
+          // Côtés
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = "#ff9800"; ctx.beginPath(); ctx.moveTo(Q.x,Q.y); ctx.lineTo(R.x,R.y); ctx.stroke(); // hypoténuse
+          ctx.strokeStyle = "#64b5f6"; ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(Q.x,Q.y); ctx.stroke(); // l1
+          ctx.strokeStyle = "#4db6ac"; ctx.beginPath(); ctx.moveTo(P.x,P.y); ctx.lineTo(R.x,R.y); ctx.stroke(); // l2
+
+          // Angle droit (amélioré)
+          ctx.strokeStyle = '#e53935'; // Couleur rouge pour la visibilité
+          ctx.lineWidth = 2;
+          var angleSize = 12; // Taille du symbole de l'angle droit
+          ctx.beginPath();
+          ctx.moveTo(P.x, P.y - angleSize); // Point sur le côté vertical
+          ctx.lineTo(P.x + angleSize, P.y - angleSize); // Ligne horizontale
+          ctx.lineTo(P.x + angleSize, P.y); // Ligne verticale
+          ctx.stroke();
+
+          // Sommets
+          ctx.fillStyle = getTextColor();
+          ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Arial';
+          ctx.textBaseline = 'top';
+
+          var ns = names(), vs = ns[3];
+          var right = state.rightAngle, others = vs.filter(function(x){ return x !== right; });
+          var map = {}; map[right]=P; map[others[0]]=Q; map[others[1]]=R;
+          var off = 6;
+          for (var i=0;i<vs.length;i++){ var L=vs[i], pt=map[L]; ctx.fillText(L, pt.x+off, pt.y - off - 8); }
+
+          // Labels côtés anti-superposition
+          resetPlace();
+          var u = el.unitRes ? el.unitRes.value : 'cm';
+          var d = parseInt(el.precision ? el.precision.value : '2', 10);
+          var raw = getInputs();
+          var aKnown = isFinite(raw.aRaw) && raw.aRaw > 0;
+          var bKnown = isFinite(raw.bRaw) && raw.bRaw > 0;
+          var cKnown = isFinite(raw.cRaw) && raw.cRaw > 0;
+
+          var showA = true, showB = true, showC = true;
+          if (!state.reveal) {
+            if (state.mode === 'hypotenuse') {
+              showC = false; // masque hyp avant Calculer
+            } else {
+              if (!aKnown) showA = false;
+              if (!bKnown) showB = false;
+            }
+          }
+
+          var aVal = aKnown ? fromMeters(raw.a,u) : (state.reveal && state.last && isFinite(state.last.a) ? fromMeters(state.last.a,u) : NaN);
+          var bVal = bKnown ? fromMeters(raw.b,u) : (state.reveal && state.last && isFinite(state.last.b) ? fromMeters(state.last.b,u) : NaN);
+          var cVal = cKnown ? fromMeters(raw.c,u) : (state.reveal && state.last && isFinite(state.last.c) ? fromMeters(state.last.c,u) : NaN);
+
+          var l1 = ns[0], l2 = ns[1], hyp = ns[2];
+          var tA = l1 +' = '+(showA && isFinite(aVal) ? formatSmart(aVal,d)+' '+u : '?');
+          var tB = l2 +' = '+(showB && isFinite(bVal) ? formatSmart(bVal,d)+' '+u : '?');
+          var tC = hyp+' = '+(showC && isFinite(cVal) ? formatSmart(cVal,d)+' '+u : '?');
+
+          var midPQ = { x:(P.x+Q.x)/2, y:(P.y+Q.y)/2 };
+          var midPR = { x:(P.x+R.x)/2, y:(P.y+R.y)/2 };
+          var midQR = { x:(Q.x+R.x)/2, y:(Q.y+R.y)/2 };
+
+          sideLabel(ctx, midPQ, tA, '#64b5f6');
+          sideLabel(ctx, midPR, tB, '#4db6ac');
+          sideLabel(ctx, midQR, tC, '#ff9800');
+        }
+
+        function updateTriangle() {
+          var raw = getInputs();
+
+          // maj labels de base
+          var ns = names(), l1 = ns[0], l2 = ns[1], hyp = ns[2], vs = ns[3];
+          if (!state.last) state.last = { labels: { l1:l1, l2:l2, hyp:hyp, vs:vs }, uRes: (el.unitRes ? el.unitRes.value : 'cm'), d: parseInt(el.precision ? el.precision.value : '2', 10) };
+          else state.last.labels = { l1:l1, l2:l2, hyp:hyp, vs:vs };
+
+          if (state.mode === 'hypotenuse') {
+            if (canHyp(raw.a, raw.b)) {
+              if (!state.reveal) {
+                state.last.a = raw.a; state.last.b = raw.b; state.last.c = NaN;
+              }
+              drawTriangle(raw.a, raw.b);
+              return;
+            }
+            drawPlaceholder(); return;
+          }
+
+          if (state.reveal && state.last && isFinite(state.last.a) && isFinite(state.last.b)) {
+            drawTriangle(state.last.a, state.last.b);
+            return;
+          }
+          drawPlaceholder();
+        }
+
+        // ---------- Résultats ----------
+        function concealResults() {
+          state.reveal = false;
+          if (el.resultCard) { el.resultCard.hidden = true; el.resultCard.setAttribute('aria-hidden','true'); }
+        }
+
+        function computeAndRender(reveal, notify) {
+          if (reveal == null) reveal = true;
+          if (notify == null) notify = true;
+
+          try {
+            var result = pythagoreCompute();
+            var resUnit = el.unitRes ? el.unitRes.value : 'cm';
+            var dec = parseInt(el.precision ? el.precision.value : '2', 10);
+
+            state.units = {
+              A: el.unitA ? el.unitA.value : 'cm',
+              B: el.unitB ? el.unitB.value : 'cm',
+              C: el.unitC ? el.unitC.value : 'cm',
+              res: resUnit
+            };
+            state.precision = dec;
+
+            var ns = names();
+            state.last = {
+              a: result.computed.a, b: result.computed.b, c: result.computed.c,
+              uRes: resUnit, d: dec,
+              labels: { l1: ns[0], l2: ns[1], hyp: ns[2], vs: ns[3] }
+            };
+
+            if (reveal) {
+              renderSteps(result);
+              if (el.resultCard) { el.resultCard.hidden = false; el.resultCard.setAttribute('aria-hidden','false'); }
+              state.reveal = true;
+              if (notify) showMsg('Calcul réussi ✅', 'success');
+            } else {
+              concealResults();
+            }
+
+            saveState();
+            scheduleDraw();
+          } catch (err) {
+            if (reveal) showMsg(err && err.message ? err.message : 'Entrées invalides', 'error');
+            concealResults();
+
+            // Aperçu prudent (sans révéler)
+            var raw = getInputs();
+            if (state.mode === 'hypotenuse' && canHyp(raw.a, raw.b)) {
+              var ns2 = names();
+              state.last = { a: raw.a, b: raw.b, c: Math.hypot(raw.a, raw.b), uRes: (el.unitRes ? el.unitRes.value : 'cm'), d: parseInt(el.precision ? el.precision.value : '2', 10), labels: { l1: ns2[0], l2: ns2[1], hyp: ns2[2], vs: ns2[3] } };
+            } else {
+              state.last = null;
+            }
+            scheduleDraw();
+          }
+        }
+
+        // ---------- Actions ----------
+        function clearAll() {
+          if (el.inputA) el.inputA.value = '';
+          if (el.inputB) el.inputB.value = '';
+          if (el.inputC) el.inputC.value = '';
+          concealResults();
+          showMsg('Champs effacés.');
+          state.last = null;
+          scheduleDraw();
+        }
+        function newCalc() {
+          clearAll();
+          if (el.inputA) el.inputA.focus();
+        }
+        function copySteps() {
+          var text = 'Titre: ' + (el.resultTitle ? el.resultTitle.textContent : '') + '\n\n' + (el.resultSteps ? el.resultSteps.textContent : '');
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text)
+              .then(function(){ showMsg('Rédaction copiée dans le presse-papiers.', 'success'); })
+              .catch(function(){ fallbackCopy(text); });
+          } else {
+            fallbackCopy(text);
+          }
+        }
+        function fallbackCopy(text) {
+          var ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta);
+          ta.select(); ta.setSelectionRange(0, 99999);
+          try { document.execCommand('copy'); showMsg('Rédaction copiée ✔️', 'success'); }
+          catch(e){ showMsg('Impossible de copier automatiquement.', 'error'); }
+          ta.remove();
+        }
+        function exportPNG() {
+          if (!el.canvas) return;
+          try {
+            var link = document.createElement('a');
+            link.download = 'pythagore_triangle.png';
+            link.href = el.canvas.toDataURL('image/png');
+            link.click();
+          } catch(e) {
+            showMsg('Export PNG non supporté sur ce navigateur.', 'error');
+          }
+        }
+        function exportPDF() {
+            if (!state.last) {
+                showMsg('Aucun résultat à exporter.', 'error');
+                return;
+            }
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const title = el.resultTitle.textContent;
+                const content = el.resultSteps.textContent;
+
+                doc.setFont('Helvetica', 'bold');
+                doc.text(title, 10, 15);
+                
+                doc.setFont('Helvetica', 'normal');
+                const splitContent = doc.splitTextToSize(content, 180);
+                doc.text(splitContent, 10, 25);
+                
+                doc.save('Pythagore_Pro_Redaction.pdf');
+                showMsg('Export PDF généré.', 'success');
+            } catch (e) {
+                showMsg('Erreur lors de la génération du PDF.', 'error');
+                console.error(e);
+            }
+        }
+
+        // ---------- Événements ----------
+        function setupEventListeners() {
+          // Thème
+          if (el.btnTheme) el.btnTheme.addEventListener('click', toggleTheme);
+
+          // Aide
+          if (el.btnInfo) el.btnInfo.addEventListener('click', function(){
+            if (el.dlgHelp && typeof el.dlgHelp.showModal === 'function') el.dlgHelp.showModal();
+            else alert('Le côté recherché est révélé après “Calculer”. Saisissez vos longueurs, choisissez les unités et la précision.');
+          });
+          if (el.btnHelpClose) el.btnHelpClose.addEventListener('click', function(){ if (el.dlgHelp) el.dlgHelp.close(); });
+
+          // Feedback
+          if (el.btnFeedback) el.btnFeedback.addEventListener('click', function(e){
+            e.preventDefault();
+            var subj = encodeURIComponent('Retour • Pythagore Pro');
+            var body = encodeURIComponent('Bonjour,\n\nJe souhaite proposer une amélioration / signaler un bug :\n\n');
+            window.location.href = 'mailto:?subject=' + subj + '&body=' + body;
+          });
+
+          // Mode
+          if (el.modeHyp) el.modeHyp.addEventListener('click', function(){
+            if (state.mode !== 'hypotenuse') {
+              state.mode = 'hypotenuse';
+              concealResults();
+              refreshUI();
+              saveState();
+              scheduleDraw();
+            }
+          });
+          if (el.modeLeg) el.modeLeg.addEventListener('click', function(){
+            if (state.mode !== 'leg') {
+              state.mode = 'leg';
+              concealResults();
+              refreshUI();
+              saveState();
+              scheduleDraw();
+            }
+          });
+
+          // Sommets
+          var onVerticesInput = debounce(function(){
+            var cleaned = sanitizeVertices(el.vertices ? el.vertices.value : '');
+            if (cleaned !== state.vertices) {
+              state.vertices = cleaned;
+              if (state.vertices.indexOf(state.rightAngle) === -1) state.rightAngle = state.vertices[0];
+              if (el.vertices) el.vertices.value = cleaned;
+              concealResults();
+              refreshUI();
+              saveState();
+              scheduleDraw();
+            }
+          }, 120);
+          if (el.vertices) el.vertices.addEventListener('input', onVerticesInput);
+
+          // Angle droit
+          for (var i=0; i<el.angleBtns.length; i++) {
+            var b = el.angleBtns[i];
+            if (!b) continue;
+            b.addEventListener('click', function(){
+              state.rightAngle = this.dataset.letter;
+              concealResults();
+              refreshUI();
+              saveState();
+              scheduleDraw();
+            });
+          }
+
+          // Unités + précision
+          if (el.unitA) el.unitA.addEventListener('change', function(){ state.units.A = el.unitA.value; saveState(); concealResults(); computeAndRender(false, false); });
+          if (el.unitB) el.unitB.addEventListener('change', function(){ state.units.B = el.unitB.value; saveState(); concealResults(); computeAndRender(false, false); });
+          if (el.unitC) el.unitC.addEventListener('change', function(){ state.units.C = el.unitC.value; saveState(); concealResults(); computeAndRender(false, false); });
+          if (el.unitRes) el.unitRes.addEventListener('change', function(){ state.units.res = el.unitRes.value; saveState(); if (state.reveal) computeAndRender(true, false); else { concealResults(); computeAndRender(false,false); } });
+          if (el.precision) el.precision.addEventListener('change', function(){ state.precision = parseInt(el.precision.value || '2', 10); saveState(); if (state.reveal) computeAndRender(true,false); else { concealResults(); computeAndRender(false,false); } });
+
+          // Saisie
+          var onInputLive = debounce(function(){ concealResults(); computeAndRender(false, false); }, 200);
+          if (el.inputA) { el.inputA.addEventListener('input', onInputLive); el.inputA.addEventListener('keypress', onEnterCalc); }
+          if (el.inputB) { el.inputB.addEventListener('input', onInputLive); el.inputB.addEventListener('keypress', onEnterCalc); }
+          if (el.inputC) { el.inputC.addEventListener('input', onInputLive); el.inputC.addEventListener('keypress', onEnterCalc); }
+          function onEnterCalc(e){ if (e.key === 'Enter'){ e.preventDefault(); computeAndRender(true, true); } }
+
+          // Actions
+          if (el.btnCalc) el.btnCalc.addEventListener('click', function(){ computeAndRender(true, true); });
+          if (el.btnClear) el.btnClear.addEventListener('click', clearAll);
+          if (el.btnNew) el.btnNew.addEventListener('click', newCalc);
+          if (el.btnCopy) el.btnCopy.addEventListener('click', copySteps);
+          if (el.btnExport) el.btnExport.addEventListener('click', exportPNG);
+          if (el.btnExportPDF) el.btnExportPDF.addEventListener('click', exportPDF);
+
+          // Redimensionnement
+          window.addEventListener('resize', scheduleDraw, { passive: true });
+        }
+
+        // ---------- Init ----------
+        function init() {
+          fillUnits(el.unitA); fillUnits(el.unitB); fillUnits(el.unitC); fillUnits(el.unitRes);
+
+          loadThemePreference();
+          loadState();
+
+          if (el.vertices) el.vertices.value = state.vertices;
+          refreshUI();
+
+          state.units.A = state.units.A || 'cm';
+          state.units.B = state.units.B || 'cm';
+          state.units.C = state.units.C || 'cm';
+          state.units.res = state.units.res || 'cm';
+
+          if (el.unitA) el.unitA.value = state.units.A;
+          if (el.unitB) el.unitB.value = state.units.B;
+          if (el.unitC) el.unitC.value = state.units.C;
+          if (el.unitRes) el.unitRes.value = state.units.res;
+          if (el.precision) el.precision.value = String(state.precision);
+
+          setupEventListeners();
+
+          state.last = null;
+          concealResults();
+          scheduleDraw();
+        }
+
+        window.addEventListener('error', function (e) {
+          showMsg('Erreur JavaScript: ' + (e.message || 'inconnue'), 'error');
+        });
+
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
