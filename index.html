@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Suite d'outils mathématiques professionnels pour le collège et le lycée" />
+  <meta name="color-scheme" content="light dark" />
+  <title>MathTools Pro | Menu Principal</title>
+  <style>
+    :root {
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(0,0,0,.18);
+      --primary: #1976d2;
+      --primary-dark: #1565c0;
+      --transition: all 0.2s ease;
+      --focus-glow: 0 0 0 3px rgba(25, 118, 210, 0.3);
+    }
+
+    body.theme-dark {
+      --bg: #0f1115;
+      --card: #161a22;
+      --text: #e8ecf1;
+      --muted: #9aa2af;
+      --border: #232939;
+      --input-bg: #0d1117;
+      --placeholder: #5c6370;
+      --accent: rgba(25, 118, 210, 0.15);
+      --card-hover: #1c212b;
+      --gradient-start: #1a1d29;
+      --gradient-end: #0f1115;
+      --particle-color: rgba(66, 165, 245, 0.4);
+    }
+
+    body.theme-light {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --text: #10141a;
+      --muted: #586171;
+      --border: #e5e9f1;
+      --input-bg: #fefefe;
+      --placeholder: #8a94a6;
+      --accent: rgba(25, 118, 210, 0.08);
+      --card-hover: #f0f4f8;
+      --gradient-start: #ffffff;
+      --gradient-end: #f6f8fc;
+      --particle-color: rgba(25, 118, 210, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      transition: var(--transition);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4 {
+      font-weight: 600;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .logo-emoji {
+      font-size: 28px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 16px;
+      background: var(--accent);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, #42a5f5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+    }
+
+    .user-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-pseudo {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .user-status {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .icon-btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      padding: 8px 10px;
+      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .icon-btn:hover {
+      background: var(--accent);
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border-radius: 10px;
+      font-weight: 500;
+      transition: var(--transition);
+      cursor: pointer;
+      padding: 10px 16px;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      border-color: var(--primary);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+    }
+
+    .btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(25, 118, 210, 0.4);
+    }
+
+    .btn.danger {
+      background: transparent;
+      color: #f44336;
+      border-color: rgba(244, 67, 54, 0.3);
+    }
+
+    .btn.danger:hover {
+      background: rgba(244, 67, 54, 0.1);
+      border-color: #f44336;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 48px 16px;
+      margin-bottom: 32px;
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 48px);
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, #42a5f5 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .auth-banner {
+      background: linear-gradient(135deg, rgba(25, 118, 210, 0.1) 0%, rgba(66, 165, 245, 0.05) 100%);
+      border: 2px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 48px;
+      text-align: center;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .auth-banner h2 {
+      font-size: 28px;
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+
+    .auth-banner p {
+      color: var(--muted);
+      margin-bottom: 24px;
+      font-size: 16px;
+    }
+
+    .auth-banner-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+
+    .tool-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-decoration: none;
+      color: var(--text);
+      transition: var(--transition);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), #42a5f5);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      background: var(--card-hover);
+      border-color: var(--primary);
+    }
+
+    .tool-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .tool-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .tool-emoji {
+      font-size: 48px;
+      width: 72px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .tool-info h3 {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    .tool-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tool-description {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .tool-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .feature-tag {
+      background: var(--accent);
+      color: var(--text);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 32px 16px;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer p {
+      margin-bottom: 8px;
+    }
+
+    dialog {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-width: 600px;
+      width: calc(100% - 32px);
+      box-shadow: var(--shadow);
+      margin: auto;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    dialog h3 {
+      margin-bottom: 16px;
+      font-size: 24px;
+    }
+
+    dialog p {
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 12px;
+    }
+    
+    dialog h4 {
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    dialog ul {
+      margin: 16px 0 16px 24px;
+      color: var(--muted);
+    }
+
+    dialog li {
+      margin-bottom: 8px;
+    }
+    
+    dialog ul + p {
+        margin-top: 16px;
+    }
+
+    .dialog-actions {
+      margin-top: 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tool-card {
+      animation: fadeIn 0.5s ease-out backwards;
+    }
+    
+    @keyframes dialog-show {
+      from {
+        opacity: 0;
+        transform: scale(0.97) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    dialog[open] {
+      animation: dialog-show 0.3s ease-out forwards;
+    }
+
+    @keyframes backdrop-fade-in {
+      from { background: rgba(0, 0, 0, 0); }
+      to { background: rgba(0, 0, 0, 0.5); }
+    }
+
+    dialog[open]::backdrop {
+      animation: backdrop-fade-in 0.3s ease-out forwards;
+    }
+
+    .tool-card:nth-child(1) { animation-delay: 0.1s; }
+    .tool-card:nth-child(2) { animation-delay: 0.2s; }
+    .tool-card:nth-child(3) { animation-delay: 0.3s; }
+    .tool-card:nth-child(4) { animation-delay: 0.4s; }
+    .tool-card:nth-child(5) { animation-delay: 0.5s; }
+
+    @media (max-width: 768px) {
+      .tools-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding: 32px 16px;
+      }
+      
+      .user-info {
+        padding: 6px 12px;
+      }
+      
+      .user-details {
+        display: none;
+      }
+      
+      .auth-banner-buttons {
+        flex-direction: column;
+      }
+    }
+    
+    /* Animated background particles */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      background: var(--particle-color);
+      border-radius: 50%;
+      animation: float 25s infinite ease-in-out;
+      box-shadow: 0 0 20px var(--particle-color);
+    }
+
+    .particle:nth-child(1) { width: 6px; height: 6px; top: 10%; left: 15%; animation-delay: 0s; }
+    .particle:nth-child(2) { width: 4px; height: 4px; top: 25%; left: 75%; animation-delay: 3s; }
+    .particle:nth-child(3) { width: 8px; height: 8px; top: 60%; left: 10%; animation-delay: 6s; }
+    .particle:nth-child(4) { width: 5px; height: 5px; top: 40%; left: 85%; animation-delay: 9s; }
+    .particle:nth-child(5) { width: 7px; height: 7px; top: 75%; left: 50%; animation-delay: 12s; }
+    .particle:nth-child(6) { width: 4px; height: 4px; top: 90%; left: 30%; animation-delay: 15s; }
+    .particle:nth-child(7) { width: 6px; height: 6px; top: 15%; left: 60%; animation-delay: 18s; }
+    .particle:nth-child(8) { width: 5px; height: 5px; top: 50%; left: 20%; animation-delay: 21s; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+      25% { transform: translate(-100px, -150px) scale(1.2); opacity: 0.5; }
+      50% { transform: translate(100px, -300px) scale(0.8); opacity: 0.4; }
+      75% { transform: translate(-150px, -200px) scale(1.1); opacity: 0.6; }
+    }
+
+    /* Gradient orbs background */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      z-index: 0;
+      pointer-events: none;
+      animation: orbFloat 20s infinite ease-in-out;
+    }
+
+    .orb-1 {
+      width: 400px;
+      height: 400px;
+      background: var(--primary);
+      top: -200px;
+      left: -200px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 350px;
+      height: 350px;
+      background: #42a5f5;
+      bottom: -150px;
+      right: -150px;
+      animation-delay: 5s;
+    }
+
+    .orb-3 {
+      width: 300px;
+      height: 300px;
+      background: #64b5f6;
+      top: 50%;
+      left: 50%;
+      animation-delay: 10s;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(50px, 100px); }
+      50% { transform: translate(-30px, 50px); }
+      75% { transform: translate(80px, -50px); }
+    }
+  </style>
+</head>
+<body class="theme-dark">
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <header class="topbar">
+    <div class="logo">
+      <span class="logo-emoji">🔢</span>
+      <span>MathTools Pro</span>
+    </div>
+    <div class="topbar-actions">
+      <!-- Zone d'authentification (sera remplie dynamiquement) -->
+      <div id="authSection"></div>
+      
+      <button id="btnTheme" class="icon-btn" title="Changer de thème">🌓</button>
+      <button id="btnInfo" class="icon-btn" title="À propos">ℹ️</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Bannière d'authentification (visible uniquement si non connecté) -->
+    <section class="auth-banner" id="authBanner" style="display: none;">
+      <h2>🔐 Rejoignez MathTools Pro</h2>
+      <p>Connectez-vous pour accéder à davantage d’outils mathématiques.</p>
+      <div class="auth-banner-buttons">
+        <a href="login.html" class="btn primary">
+          <span>🚀</span>
+          <span>Se connecter</span>
+        </a>
+        <a href="login.html?tab=register" class="btn">
+          <span>✨</span>
+          <span>Créer un compte gratuit</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="hero">
+      <h1>Bienvenue sur MathTools Pro</h1>
+      <p>Une suite complète d'outils mathématiques conçus pour faciliter vos calculs et rédactions. Choisissez l'outil dont vous avez besoin ci-dessous.</p>
+    </section>
+
+    <section class="tools-grid">
+      <a href="Pythagore_pro.html" class="tool-card">
+        <div class="tool-header">
+          <div class="tool-emoji">🧮</div>
+          <div class="tool-info">
+            <h3>Pythagore Pro</h3>
+            <div class="tool-subtitle">Géométrie</div>
+          </div>
+        </div>
+        <p class="tool-description">
+          Calculateur du théorème de Pythagore avec visualisation interactive du triangle. 
+          Calculez l'hypoténuse ou un côté adjacent avec une rédaction détaillée étape par étape.
+        </p>
+        <div class="tool-features">
+          <span class="feature-tag">Copier Rédaction</span>
+          <span class="feature-tag">Export PDF</span>
+          <span class="feature-tag">Visualisation</span>
+        </div>
+      </a>
+
+      <a href="Thales_Pro.html" class="tool-card">
+        <div class="tool-header">
+          <div class="tool-emoji">📐</div>
+          <div class="tool-info">
+            <h3>Thalès Pro</h3>
+            <div class="tool-subtitle">Géométrie</div>
+          </div>
+        </div>
+        <p class="tool-description">
+          Appliquez le théorème de Thalès et sa réciproque. Calculez des longueurs manquantes 
+          ou vérifiez si des droites sont parallèles avec des configurations variées.
+        </p>
+        <div class="tool-features">
+          <span class="feature-tag">Copier Rédaction</span>
+          <span class="feature-tag">Export PDF</span>
+          <span class="feature-tag">Théorème & Réciproque</span>
+        </div>
+      </a>
+
+      <a href="Developpement_Pro.html" class="tool-card">
+        <div class="tool-header">
+          <div class="tool-emoji">⚙️</div>
+          <div class="tool-info">
+            <h3>Développement Pro</h3>
+            <div class="tool-subtitle">Algèbre</div>
+          </div>
+        </div>
+        <p class="tool-description">
+          Développez des expressions algébriques : double distributivité (a+b)(c+d) et les trois 
+          identités remarquables. Prévisualisation en temps réel de votre expression.
+        </p>
+        <div class="tool-features">
+          <span class="feature-tag">Copier Rédaction</span>
+          <span class="feature-tag">Export PDF</span>
+          <span class="feature-tag">Identités Rem.</span>
+        </div>
+      </a>
+
+      <a href="Equation_Premier_Degre_Pro.html" class="tool-card">
+        <div class="tool-header">
+          <div class="tool-emoji">⚖️</div>
+          <div class="tool-info">
+            <h3>Équation Pro</h3>
+            <div class="tool-subtitle">Algèbre</div>
+          </div>
+        </div>
+        <p class="tool-description">
+          Résolvez des équations du premier degré (ax+b = cx+d) avec une rédaction pédagogique 
+          détaillée. Idéal pour comprendre chaque étape de résolution.
+        </p>
+        <div class="tool-features">
+          <span class="feature-tag">Copier Rédaction</span>
+          <span class="feature-tag">Export PDF</span>
+          <span class="feature-tag">Étapes Détaillées</span>
+        </div>
+      </a>
+
+      <a href="Statistique_Pro.html" class="tool-card">
+        <div class="tool-header">
+          <div class="tool-emoji">📊</div>
+          <div class="tool-info">
+            <h3>Statistique Pro</h3>
+            <div class="tool-subtitle">Statistiques</div>
+          </div>
+        </div>
+        <p class="tool-description">
+          Générez des séries statistiques à partir de contraintes (moyenne, médiane, étendue, effectif). 
+          Parfait pour créer des exercices ou vérifier vos calculs.
+        </p>
+        <div class="tool-features">
+          <span class="feature-tag">Copier Rédaction</span>
+          <span class="feature-tag">Export PDF</span>
+          <span class="feature-tag">Génération Auto</span>
+        </div>
+      </a>
+    </section>
+
+    <footer class="footer">
+      <p>« Les mathématiques sont la poésie de la logique. »</p>
+      <p style="margin-top: 16px; font-size: 12px; opacity: 0.7;">
+        MathTools Pro • Tous les outils sont gratuits
+      </p>
+    </footer>
+  </main>
+
+  <dialog id="dlgInfo">
+    <h3>À propos de MathTools Pro</h3>
+    <p>
+      <strong>MathTools Pro</strong> est une suite d'outils mathématiques conçue pour les élèves 
+      et enseignants du collège et du lycée. Chaque outil fournit une rédaction détaillée et 
+      pédagogique pour mieux comprendre les concepts mathématiques.
+    </p>
+    
+    <h4>Fonctionnalités :</h4>
+    <ul>
+      <li>✨ Interface moderne et intuitive</li>
+      <li>🌓 Mode sombre et mode clair</li>
+      <li>📱 Compatible mobile, tablette et ordinateur</li>
+      <li>🔒 Aucune donnée collectée, tout reste local</li>
+      <li>⚡ Fonctionne hors ligne après le premier chargement</li>
+      <li>📋 Copie facile des rédactions</li>
+    </ul>
+
+    <p>
+      Chaque outil est conçu pour être complet et professionnel, avec des visualisations 
+      interactives et des explications détaillées.
+    </p>
+
+    <div class="dialog-actions">
+      <button id="btnInfoClose" class="btn">Fermer</button>
+    </div>
+  </dialog>
+
+  <script>
+    (function() {
+      'use strict';
+
+      const el = {
+        btnTheme: document.getElementById('btnTheme'),
+        btnInfo: document.getElementById('btnInfo'),
+        dlgInfo: document.getElementById('dlgInfo'),
+        btnInfoClose: document.getElementById('btnInfoClose'),
+        authSection: document.getElementById('authSection'),
+        authBanner: document.getElementById('authBanner')
+      };
+
+      // Theme management
+      function setTheme(theme) {
+        document.body.className = theme;
+        localStorage.setItem('mathtools_theme', theme);
+        el.btnTheme.textContent = theme === 'theme-dark' ? '☀️' : '🌙';
+      }
+
+      const savedTheme = localStorage.getItem('mathtools_theme') || 'theme-dark';
+      setTheme(savedTheme);
+
+      el.btnTheme.addEventListener('click', () => {
+        const newTheme = document.body.classList.contains('theme-dark') 
+          ? 'theme-light' 
+          : 'theme-dark';
+        setTheme(newTheme);
+      });
+
+      el.btnInfo.addEventListener('click', () => {
+        el.dlgInfo.showModal();
+      });
+
+      el.btnInfoClose.addEventListener('click', () => {
+        el.dlgInfo.close();
+      });
+
+      // Authentication management
+      function checkAuth() {
+        const session = localStorage.getItem('mathtools_session');
+        
+        if (session) {
+          try {
+            const sessionData = JSON.parse(session);
+            const loginTime = new Date(sessionData.loginTime);
+            const now = new Date();
+            const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+            
+            // Session expires after 24 hours
+            if (hoursSinceLogin < 24) {
+              showAuthenticatedUser(sessionData);
+            } else {
+              localStorage.removeItem('mathtools_session');
+              showGuestUser();
+            }
+          } catch (e) {
+            localStorage.removeItem('mathtools_session');
+            showGuestUser();
+          }
+        } else {
+          showGuestUser();
+        }
+      }
+
+      function showAuthenticatedUser(sessionData) {
+        // Hide auth banner
+        el.authBanner.style.display = 'none';
+        
+        // Show user info in topbar
+        const firstLetter = sessionData.pseudo.charAt(0).toUpperCase();
+        el.authSection.innerHTML = `
+          <div class="user-info">
+            <div class="user-avatar">${firstLetter}</div>
+            <div class="user-details">
+              <div class="user-pseudo">${sessionData.pseudo}</div>
+              <div class="user-status">Connecté</div>
+            </div>
+          </div>
+          <button class="btn danger" id="btnLogout">
+            <span>🚪</span>
+            <span>Déconnexion</span>
+          </button>
+        `;
+        
+        // Add logout handler
+        document.getElementById('btnLogout').addEventListener('click', logout);
+      }
+
+      function showGuestUser() {
+        // Show auth banner
+        el.authBanner.style.display = 'block';
+        
+        // Show login/register buttons in topbar
+        el.authSection.innerHTML = `
+          <a href="login.html" class="btn primary">
+            <span>🔐</span>
+            <span>Connexion</span>
+          </a>
+        `;
+      }
+
+      function logout() {
+        if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+          localStorage.removeItem('mathtools_session');
+          showGuestUser();
+          
+          // Show success message
+          const banner = el.authBanner;
+          banner.style.display = 'block';
+          const originalHTML = banner.innerHTML;
+          banner.innerHTML = `
+            <h2>✓ Déconnexion réussie</h2>
+            <p>Vous avez été déconnecté avec succès. À bientôt !</p>
+            <div class="auth-banner-buttons">
+              <a href="login.html" class="btn primary">
+                <span>🚀</span>
+                <span>Se reconnecter</span>
+              </a>
+            </div>
+          `;
+          
+          setTimeout(() => {
+            banner.innerHTML = originalHTML;
+          }, 3000);
+        }
+      }
+
+      // Check authentication status on page load
+      checkAuth();
+
+      // Add smooth scroll behavior
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      // Add hover effect sound (optional, can be removed)
+      document.querySelectorAll('.tool-card').forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          card.style.setProperty('--hover-scale', '1.02');
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.setProperty('--hover-scale', '1');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
