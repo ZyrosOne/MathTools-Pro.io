@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="description" content="Résolveur d'équations du premier degré (ax+b = cx+d) avec une rédaction pédagogique étape par étape." />
+  <meta name="description" content="Résolveur d'équations du premier degré avec support des parenthèses." />
   <meta name="color-scheme" content="light dark" />
   <title>Équation Pro | Résolveur du Premier Degré</title>
   <style>
     :root {
       --radius: 14px;
       --shadow: 0 10px 28px rgba(0,0,0,.18);
-      --primary: #1976d2; /* Blue theme */
+      --primary: #1976d2; 
       --primary-dark: #1565c0;
       --transition: all 0.2s ease;
       --focus-glow: 0 0 0 3px rgba(25, 118, 210, 0.3);
       --comment-color: #9aa2af;
-      --op-color: #ef5350; /* Red for operations */
+      --op-color: #ef5350;
     }
     body.theme-dark {
       --bg: #0f1115; --card: #161a22; --text: #e8ecf1; --muted: #9aa2af;
@@ -63,10 +63,13 @@
     input[type="text"] {
       background: var(--input-bg); color: var(--text); border: 1px solid var(--border);
       border-radius: 8px; padding: 10px 12px; font-size: 16px; transition: var(--transition);
-      width: 60px; text-align: center;
+      text-align: center;
     }
     input:focus { outline: none; border-color: var(--primary); box-shadow: var(--focus-glow); }
     
+    /* Styles originaux pour les 4 cases */
+    .coeff-input { width: 60px; }
+
     .equation-container {
         display: flex; align-items: center; justify-content: center;
         gap: 10px; flex-wrap: wrap; font-size: 20px;
@@ -74,11 +77,23 @@
     }
     .equation-side { display: flex; align-items: center; gap: 10px; }
     
+    /* --- NOUVEAU : Styles pour le mode texte libre --- */
+    .mode-selector {
+      display: flex; justify-content: center; gap: 8px; margin-bottom: 20px;
+    }
+    .mode-btn { opacity: 0.6; }
+    .mode-btn.active { opacity: 1; border-color: var(--primary); background: var(--accent); color: var(--primary); }
+    
+    #inputFullEq {
+      width: 100%; max-width: 500px; font-size: 20px; padding: 12px;
+    }
+    /* ------------------------------------------------ */
+
     #liveEquation {
         font-size: 22px; text-align: center; color: var(--primary); font-weight: 500;
         padding: 12px; background: var(--accent); border-radius: 10px; margin-top: 20px;
         word-break: break-all;
-        min-height: 1.5em; /* Ensures the box is always visible */
+        min-height: 1.5em;
     }
 
     pre {
@@ -88,6 +103,7 @@
     }
     .comment { color: var(--comment-color); }
     .op-highlight { color: var(--op-color); }
+    .step-header { font-weight: bold; color: var(--primary); margin-top: 10px; display:block; }
     .msg { margin-top: 12px; font-size: 13px; }
     .msg.error { color: #ff6b6b; } .msg.success { color: #4caf50; }
 
@@ -100,19 +116,10 @@
     .dialog-actions { margin-top: 12px; display: flex; justify-content: flex-end; gap: 8px; }
 
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    @keyframes dialog-show {
-      from { opacity: 0; transform: scale(0.97) translateY(10px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
-    }
+    @keyframes dialog-show { from { opacity: 0; transform: scale(0.97) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     dialog[open] { animation: dialog-show 0.3s ease-out forwards; }
-
-    @keyframes backdrop-fade-in {
-      from { background: rgba(0, 0, 0, 0); }
-      to { background: rgba(0, 0, 0, 0.5); }
-    }
-    dialog[open]::backdrop { animation: backdrop-fade-in 0.3s ease-out forwards; }
-
+    
+    /* Dropdown CSS (inchangé) */
     .dropdown { position: relative; }
     .dropdown-summary { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; cursor: pointer; list-style: none; padding: 4px 8px; border-radius: 8px; transition: var(--transition); }
     .dropdown-summary:hover { background: var(--accent); }
@@ -157,17 +164,31 @@
   <main class="container">
     <section class="card" aria-labelledby="section-calc">
       <h2 id="section-calc">Entrez l'équation à résoudre :</h2>
-      <div class="equation-container">
+      
+      <!-- NOUVEAU : Sélecteur de mode -->
+      <div class="mode-selector">
+        <button id="btnModeCoeffs" class="btn mode-btn active">Mode Coefficients</button>
+        <button id="btnModeText" class="btn mode-btn">Mode Équation Libre</button>
+      </div>
+
+      <!-- Mode Coefficients (Classique) -->
+      <div id="modeCoeffsUI" class="equation-container">
         <div class="equation-side">
-          <input id="inputA" type="text" placeholder="a" aria-label="Coefficient a"> <span>x +</span>
-          <input id="inputB" type="text" placeholder="b" aria-label="Coefficient b">
+          <input id="inputA" class="coeff-input" type="text" placeholder="a" aria-label="Coefficient a"> <span>x +</span>
+          <input id="inputB" class="coeff-input" type="text" placeholder="b" aria-label="Coefficient b">
         </div>
         <span>=</span>
         <div class="equation-side">
-          <input id="inputC" type="text" placeholder="c" aria-label="Coefficient c"> <span>x +</span>
-          <input id="inputD" type="text" placeholder="d" aria-label="Coefficient d">
+          <input id="inputC" class="coeff-input" type="text" placeholder="c" aria-label="Coefficient c"> <span>x +</span>
+          <input id="inputD" class="coeff-input" type="text" placeholder="d" aria-label="Coefficient d">
         </div>
       </div>
+
+      <!-- NOUVEAU : Mode Texte Libre -->
+      <div id="modeTextUI" class="equation-container" hidden>
+        <input id="inputFullEq" type="text" placeholder="Ex: 2(x+3) = 14  ou  3x - (4-x) = 10">
+      </div>
+
       <div id="liveEquation"></div>
     </section>
 
@@ -191,11 +212,10 @@
 
   <dialog id="dlgHelp">
     <h3>Aide • Équation Pro</h3>
-    <p>Cet outil résout les équations du premier degré de la forme ax + b = cx + d.</p>
+    <p>Cet outil propose deux modes :</p>
     <ul>
-      <li><strong>Entrez les coefficients :</strong> Remplissez les quatre champs a, b, c et d. Vous pouvez utiliser des nombres entiers, décimaux, positifs ou négatifs.</li>
-      <li><strong>Prévisualisez :</strong> L'équation se met à jour en temps réel en dessous des champs de saisie.</li>
-      <li><strong>Résolvez :</strong> Le bouton "Résoudre" devient actif lorsque tous les coefficients sont valides. Cliquez pour obtenir la rédaction complète et détaillée.</li>
+      <li><strong>Mode Coefficients :</strong> Pour les équations déjà simplifiées de la forme <em>ax + b = cx + d</em>.</li>
+      <li><strong>Mode Équation Libre :</strong> Pour écrire l'équation telle quelle (ex: <code>2(x+3) = 14</code>). L'outil développera et simplifiera automatiquement.</li>
     </ul>
     <div class="dialog-actions">
       <button id="btnHelpClose" class="btn">Fermer</button>
@@ -208,13 +228,15 @@
       
       const LS_THEME = 'equation_1deg_theme_v3';
       const el = {};
+      let currentMode = 'coeffs'; // 'coeffs' ou 'text'
 
       function byId(id) { return document.getElementById(id); }
 
       function setupElements() {
           const ids = ['inputA', 'inputB', 'inputC', 'inputD', 'liveEquation', 'btnSolve', 
                        'btnClear', 'btnCopy', 'msg', 'resultCard', 'resultSteps', 'btnTheme',
-                       'btnNew', 'btnExportPDF', 'btnInfo', 'dlgHelp', 'btnHelpClose'];
+                       'btnNew', 'btnExportPDF', 'btnInfo', 'dlgHelp', 'btnHelpClose',
+                       'btnModeCoeffs', 'btnModeText', 'modeCoeffsUI', 'modeTextUI', 'inputFullEq'];
           ids.forEach(id => el[id] = byId(id));
       }
 
@@ -239,6 +261,117 @@
           }
       };
 
+      // --- NOUVEAU : Logique de parsing ---
+
+      // Classe utilitaire pour simplifier les expressions littérales
+      const EquationParser = {
+          // Simplifie une expression (ex: "2(x+3)") vers ax+b
+          simplifyExpression: function(expr) {
+              let logs = [];
+              let cleanExpr = expr.replace(/\s+/g, '').replace(/,/g, '.');
+
+              // Etape 1 : Développement des parenthèses
+              // Tant qu'il y a des parenthèses
+              let loopSafety = 0;
+              while (cleanExpr.includes('(') && loopSafety < 10) {
+                  loopSafety++;
+                  // Regex pour trouver "Facteur(Contenu)"
+                  // Gère : 2(x), -2(x), -(x), +(x), ou juste (x)
+                  // Group 1: Préfixe (nombre, signe ou vide)
+                  // Group 2: Contenu
+                  const match = cleanExpr.match(/([+\-]?\d*(?:\.\d+)?)\s*\(([^()]+)\)/);
+                  
+                  if (match) {
+                      const fullMatch = match[0];
+                      let factorStr = match[1];
+                      const content = match[2];
+
+                      // Déterminer le facteur multiplicatif
+                      let factor = 1;
+                      if (factorStr === '-' || factorStr === '') {
+                          factor = (factorStr === '-') ? -1 : 1;
+                          // Si c'était juste "(...)" et qu'il y a un chiffre avant qui n'a pas été capturé (cas 3x-(...))
+                          // Le regex ci-dessus capture le signe s'il est collé.
+                          // Vérification contexte : si le facteur est vide mais précédé d'un chiffre dans la string complète?
+                          // Pour simplifier, on assume que la string est bien formée par les étapes précédentes.
+                      } else {
+                          if (factorStr === '+') factor = 1;
+                          else factor = parseFloat(factorStr);
+                      }
+
+                      // Parser le contenu (somme de termes linéaires simples ax+b à ce niveau)
+                      // On fait une mini récursion "light" : on somme les x et les nombres dans la parenthèse
+                      const contentParsed = this.sumTerms(content);
+                      
+                      // Distribution
+                      const newA = factor * contentParsed.a;
+                      const newB = factor * contentParsed.b;
+
+                      // Reconstruire la string
+                      // ex: 2*3x -> 6x, 2*4 -> 8.
+                      // On crée une sous-chaine développée.
+                      let expanded = "";
+                      if (newA !== 0) expanded += (newA) + "x"; // On garde le signe brut pour l'instant
+                      if (newB !== 0 || newA === 0) expanded += (newB >= 0 && expanded ? "+" : "") + newB;
+                      
+                      // Astuce: remplacer la partie correspondante dans la string originale
+                      // Il faut s'assurer que si le résultat est positif et au milieu, on met un +
+                      // Si expanded commence par un nombre positif et n'est pas au début de ligne...
+                      
+                      // Remplacement simple :
+                      // On remplace le match par sa valeur développée.
+                      // Attention aux signes concaténés (ex: 3x + -2x). On nettoiera après.
+                      cleanExpr = cleanExpr.replace(fullMatch, expanded);
+                      
+                      logs.push(`On développe ${fullMatch} en ${expanded}`);
+                  }
+              }
+
+              // Etape 2 : Somme des termes (Réduction)
+              const finalTerms = this.sumTerms(cleanExpr);
+              
+              // Construction de l'expression propre pour l'affichage (ex: "2x + 6")
+              let finalExprStr = buildExpr(finalTerms.a, finalTerms.b);
+              
+              return {
+                  a: finalTerms.a,
+                  b: finalTerms.b,
+                  logs: logs,
+                  simplifiedStr: finalExprStr
+              };
+          },
+
+          // Somme tous les termes en x et constants dans une chaine sans parenthèses
+          sumTerms: function(str) {
+              // On normalise les signes pour split
+              // Remplace "-" par "+-" sauf au début
+              let normalized = str.replace(/([^\w])-/g, '$1+-');
+              if (normalized.startsWith('-')) normalized = '0+' + normalized; // Hack pour le split
+              
+              const parts = normalized.split('+');
+              let a = 0; 
+              let b = 0;
+
+              parts.forEach(p => {
+                  p = p.trim();
+                  if (!p) return;
+                  if (p.includes('x')) {
+                      // C'est un terme en x
+                      let valStr = p.replace('x', '');
+                      if (valStr === '' || valStr === '+') a += 1;
+                      else if (valStr === '-') a -= 1;
+                      else a += parseFloat(valStr);
+                  } else {
+                      // C'est une constante
+                      b += parseFloat(p);
+                  }
+              });
+              return { a, b };
+          }
+      };
+
+      // ------------------------------------
+
       function parseInput(id) {
           const val = el[id]?.value.trim().replace(',', '.');
           if (val === '' || val ==='-') return NaN;
@@ -247,10 +380,35 @@
       }
       
       function getInputs() {
-          return {
-              a: parseInput('inputA'), b: parseInput('inputB'),
-              c: parseInput('inputC'), d: parseInput('inputD')
-          };
+          if (currentMode === 'coeffs') {
+              return {
+                  a: parseInput('inputA'), b: parseInput('inputB'),
+                  c: parseInput('inputC'), d: parseInput('inputD'),
+                  rawExpr: null
+              };
+          } else {
+              // Parsing du mode texte
+              const raw = el.inputFullEq.value;
+              if (!raw.includes('=')) return { a: NaN, b:NaN, c:NaN, d:NaN }; // Pas d'équation valide
+              const sides = raw.split('=');
+              if (sides.length !== 2) return { a: NaN };
+
+              try {
+                  const lhs = EquationParser.simplifyExpression(sides[0]);
+                  const rhs = EquationParser.simplifyExpression(sides[1]);
+                  
+                  return {
+                      a: lhs.a, b: lhs.b,
+                      c: rhs.a, d: rhs.b,
+                      rawExpr: raw,
+                      logs: [...lhs.logs, ...rhs.logs],
+                      simplifiedLHS: lhs.simplifiedStr,
+                      simplifiedRHS: rhs.simplifiedStr
+                  };
+              } catch(e) {
+                  return { a: NaN };
+              }
+          }
       }
 
       function buildExpr(coeffX, constTerm, coeffXName = 'a', constTermName = 'b') {
@@ -275,9 +433,20 @@
 
       function updateLiveUI() {
           const v = getInputs();
-          el.btnSolve.disabled = Object.values(v).some(isNaN);
+          // Validation de base : il faut a,b,c,d valides
+          const isValid = !isNaN(v.a) && !isNaN(v.b) && !isNaN(v.c) && !isNaN(v.d);
+          el.btnSolve.disabled = !isValid;
           
-          el.liveEquation.textContent = `${buildExpr(v.a, v.b, 'a', 'b')} = ${buildExpr(v.c, v.d, 'c', 'd')}`;
+          if (currentMode === 'coeffs') {
+             el.liveEquation.textContent = `${buildExpr(v.a, v.b, 'a', 'b')} = ${buildExpr(v.c, v.d, 'c', 'd')}`;
+          } else {
+             // Mode texte : on affiche l'équation parsée/interprétée
+             if (isValid) {
+                 el.liveEquation.innerHTML = `<span style="font-size:0.8em; color:var(--text)">Interprété : </span> ${buildExpr(v.a, v.b)} = ${buildExpr(v.c, v.d)}`;
+             } else {
+                 el.liveEquation.textContent = "En attente d'une équation valide...";
+             }
+          }
       }
 
       function showMsg(message, type = 'info') {
@@ -287,11 +456,30 @@
 
       function solveEquation(v) {
           let { a, b, c, d } = v;
-          let steps = [`${buildExpr(a,b)} = ${buildExpr(c,d)}\n`];
-          let stepCounter = 1;
+          let steps = [];
+          
+          // Si on vient du mode texte et qu'il y a eu simplification
+          if (v.rawExpr && (v.logs.length > 0 || (buildExpr(a,b) + " = " + buildExpr(c,d)).replace(/\s/g,'') !== v.rawExpr.replace(/\s/g,''))) {
+             steps.push(`<span class="step-header">1. Simplification de l'équation</span>`);
+             steps.push(`Équation de départ : ${v.rawExpr}`);
+             
+             // Afficher les étapes de développement
+             v.logs.forEach(log => steps.push(`<span class="comment">• ${log}</span>`));
+             
+             steps.push(`On obtient la forme simplifiée :`);
+             steps.push(`${buildExpr(a,b)} = ${buildExpr(c,d)}\n`);
+             steps.push(`<span class="step-header">2. Résolution</span>`);
+          } else {
+             steps.push(`${buildExpr(a,b)} = ${buildExpr(c,d)}\n`);
+          }
 
+          let stepCounter = 1;
+          // Ajustement du compteur si on a déjà fait une simplification
+          if(v.rawExpr) stepCounter = 1; 
+
+          // --- Logique de résolution originale inchangée ---
           if (b !== 0) {
-              steps.push(`<span class="comment">• Étape ${stepCounter++} : On isole les constantes à droite</span>`);
+              steps.push(`<span class="comment">• Étape : On isole les constantes à droite</span>`);
               const opStr = `<span class="op-highlight">${format.op(-b)}</span>`;
               steps.push(`${buildExpr(a,b)} ${opStr} = ${buildExpr(c,d)} ${opStr}`);
               d -= b;
@@ -300,7 +488,7 @@
           }
           
           if (c !== 0) {
-              steps.push(`<span class="comment">• Étape ${stepCounter++} : On isole les inconnues à gauche</span>`);
+              steps.push(`<span class="comment">• Étape : On isole les inconnues à gauche</span>`);
               const opStr = `<span class="op-highlight">${format.op(-c, true)}</span>`;
               steps.push(`${buildExpr(a,b)} ${opStr} = ${buildExpr(c,d)} ${opStr}`);
               a -= c;
@@ -310,7 +498,7 @@
           
           if (a !== 0) {
               const x = d / a;
-              steps.push(`<span class="comment">• Étape ${stepCounter++} : On divise les deux membres par ${format.num(a)}</span>`);
+              steps.push(`<span class="comment">• Étape : On divise les deux membres par ${format.num(a)}</span>`);
               steps.push(`${format.parenthesisTerm(a,'x')} ÷ ${format.parenthesis(a)} = ${format.parenthesisTerm(d)} ÷ ${format.parenthesis(a)}`);
               steps.push(`x = ${format.num(x)}`);
               steps.push(`\n<strong>Conclusion : la valeur de x est ${format.num(x)}.</strong>`);
@@ -330,24 +518,55 @@
           el.resultCard.hidden = true;
           try {
               const values = getInputs();
+              if (isNaN(values.a)) throw new Error("Entrée invalide");
+              
               const steps = solveEquation(values);
               el.resultSteps.innerHTML = steps; 
               el.resultCard.hidden = false;
               showMsg('Résolution terminée.', 'success');
           } catch (e) {
-              showMsg('Une erreur est survenue.', 'error');
+              showMsg('Une erreur est survenue. Vérifiez votre équation.', 'error');
+              console.error(e);
           }
+      }
+
+      function switchMode(mode) {
+          currentMode = mode;
+          el.resultCard.hidden = true;
+          if (mode === 'coeffs') {
+              el.modeCoeffsUI.hidden = false;
+              el.modeTextUI.hidden = true;
+              el.btnModeCoeffs.classList.add('active');
+              el.btnModeText.classList.remove('active');
+          } else {
+              el.modeCoeffsUI.hidden = true;
+              el.modeTextUI.hidden = false;
+              el.btnModeCoeffs.classList.remove('active');
+              el.btnModeText.classList.add('active');
+              el.inputFullEq.focus();
+          }
+          updateLiveUI();
       }
 
       function setupEventListeners() {
           el.btnSolve.addEventListener('click', handleSolve);
+          
+          // Listeners pour le mode Coefficients
           ['inputA', 'inputB', 'inputC', 'inputD'].forEach(id => {
-              el[id].addEventListener('input', () => { el.resultCard.hidden = true; updateLiveUI(); });
+              el[id].addEventListener('input', () => { if(currentMode === 'coeffs') { el.resultCard.hidden = true; updateLiveUI(); }});
               el[id].addEventListener('keypress', (e) => { if (e.key === 'Enter' && !el.btnSolve.disabled) { e.preventDefault(); handleSolve(); }});
           });
+
+          // Listener pour le mode Texte
+          el.inputFullEq.addEventListener('input', () => { if(currentMode === 'text') { el.resultCard.hidden = true; updateLiveUI(); } });
+          el.inputFullEq.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !el.btnSolve.disabled) { e.preventDefault(); handleSolve(); }});
+
+          // Toggle Mode
+          el.btnModeCoeffs.addEventListener('click', () => switchMode('coeffs'));
+          el.btnModeText.addEventListener('click', () => switchMode('text'));
           
           const clearAction = () => {
-              ['inputA', 'inputB', 'inputC', 'inputD'].forEach(id => el[id].value = '');
+              ['inputA', 'inputB', 'inputC', 'inputD', 'inputFullEq'].forEach(id => el[id].value = '');
               el.resultCard.hidden = true;
               showMsg('Champs effacés.');
               updateLiveUI();
@@ -367,7 +586,13 @@
               try {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-                const title = `Résolution de: ${el.liveExpression.textContent}`;
+                
+                // Titre adapté selon le mode
+                let titleStr = "";
+                if(currentMode === 'text' && el.inputFullEq.value) titleStr = el.inputFullEq.value;
+                else titleStr = el.liveEquation.textContent;
+
+                const title = `Résolution de: ${titleStr}`;
                 const content = el.resultSteps.innerText;
 
                 doc.setFont('Helvetica', 'bold');
